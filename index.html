@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Split the bill</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f1ea;
+      --ink: #1c1915;
+      --muted: #5c564c;
+      --card: #fffdf8;
+      --line: #e4ddd0;
+      --accent: #0f6e56;
+      --accent-ink: #f4fbf8;
+      --chip: #efeae0;
+      --danger: #8f2d2d;
+    }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #161411;
+      --ink: #f3efe6;
+      --muted: #b7b0a4;
+      --card: #221f1b;
+      --line: #3a342c;
+      --accent: #3dbe9a;
+      --accent-ink: #10231c;
+      --chip: #2c2823;
+      --danger: #ffb4b4;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Iowan Old Style", Palatino, "Palatino Linotype", Georgia, serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+    main {
+      width: min(440px, calc(100% - 32px));
+      margin: 32px auto 48px;
+    }
+    header { margin-bottom: 20px; }
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    h1 {
+      font-size: 32px;
+      line-height: 1.05;
+      margin: 0;
+      font-weight: 600;
+    }
+    p.lede {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 14px;
+    }
+    button.ghost {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 13px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    form, .result {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+    }
+    label {
+      display: block;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 13px;
+      margin: 14px 0 6px;
+    }
+    label:first-child { margin-top: 0; }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      font: 18px/1.2 ui-sans-serif, system-ui, sans-serif;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      color: var(--ink);
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chips button {
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      border: 1px solid var(--line);
+      background: var(--chip);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    .chips button[aria-pressed="true"] {
+      background: var(--accent);
+      color: var(--accent-ink);
+      border-color: var(--accent);
+    }
+    .error {
+      min-height: 1.2em;
+      margin: 10px 0 0;
+      color: var(--danger);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 13px;
+    }
+    .result { margin-top: 14px; }
+    .result dl { margin: 0; }
+    .result div {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--line);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+    }
+    .result div:last-child { border-bottom: 0; padding-bottom: 0; }
+    dt { color: var(--muted); }
+    dd { margin: 0; font-variant-numeric: tabular-nums; }
+    .each dd { font-size: 22px; font-weight: 650; }
+    .note {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="title-row">
+        <h1>Split the bill</h1>
+        <button class="ghost" id="theme" type="button">Dark mode</button>
+      </div>
+      <p class="lede">Rupees, an optional tip, and shares that add up.</p>
+    </header>
+    <form id="bill">
+      <label for="amount">Bill amount (₹)</label>
+      <input id="amount" name="amount" type="text" inputmode="decimal" autocomplete="off" value="10.10" required>
+      <label>Tip</label>
+      <div class="chips" role="group" aria-label="Tip percent">
+        <button type="button" data-tip="0">No tip</button>
+        <button type="button" data-tip="5">5%</button>
+        <button type="button" data-tip="10" aria-pressed="true">10%</button>
+        <button type="button" data-tip="15">15%</button>
+      </div>
+      <label for="people">People</label>
+      <input id="people" name="people" type="number" min="1" max="99" step="1" value="3" required>
+      <p class="error" id="error" role="status"></p>
+    </form>
+    <section class="result" aria-live="polite">
+      <dl>
+        <div><dt>Tip</dt><dd id="tip">—</dd></div>
+        <div><dt>Total</dt><dd id="total">—</dd></div>
+        <div class="each"><dt>Each pays</dt><dd id="each">—</dd></div>
+      </dl>
+      <p class="note" id="note"></p>
+    </section>
+  </main>
+  <script>
+    const amountInput = document.querySelector("#amount");
+    const peopleInput = document.querySelector("#people");
+    const errorEl = document.querySelector("#error");
+    const tipEl = document.querySelector("#tip");
+    const totalEl = document.querySelector("#total");
+    const eachEl = document.querySelector("#each");
+    const noteEl = document.querySelector("#note");
+    const chips = [...document.querySelectorAll("[data-tip]")];
+    const themeButton = document.querySelector("#theme");
+    let tipPercent = 10;
+
+    function rupeesToPaise(raw) {
+      const text = raw.trim();
+      if (!/^\d+(\.\d{1,2})?$/.test(text)) return null;
+      const [whole, frac = ""] = text.split(".");
+      return Number(whole) * 100 + Number((frac + "00").slice(0, 2));
+    }
+
+    function formatPaise(paise) {
+      const sign = paise < 0 ? "-" : "";
+      const abs = Math.abs(paise);
+      const whole = Math.floor(abs / 100);
+      const frac = String(abs % 100).padStart(2, "0");
+      return sign + "₹" + whole.toLocaleString("en-IN") + "." + frac;
+    }
+
+    function render() {
+      const bill = rupeesToPaise(amountInput.value);
+      const people = Number(peopleInput.value);
+      if (bill === null) {
+        errorEl.textContent = "Enter a rupee amount with at most two decimal places.";
+        clearFigures();
+        return;
+      }
+      if (!Number.isInteger(people) || people < 1 || people > 99) {
+        errorEl.textContent = "People has to be a whole number from 1 to 99.";
+        clearFigures();
+        return;
+      }
+      errorEl.textContent = "";
+      const tip = Math.round((bill * tipPercent) / 100);
+      const total = bill + tip;
+      const base = Math.floor(total / people);
+      const extra = total % people;
+      tipEl.textContent = formatPaise(tip);
+      totalEl.textContent = formatPaise(total);
+      eachEl.textContent = formatPaise(base);
+      if (extra === 0) {
+        noteEl.textContent = people + " equal shares. They add up to the total.";
+      } else {
+        noteEl.textContent =
+          extra +
+          (extra === 1 ? " person pays " : " people pay ") +
+          formatPaise(base + 1) +
+          " so the shares still add up to " +
+          formatPaise(total) +
+          ".";
+      }
+    }
+
+    function clearFigures() {
+      tipEl.textContent = "—";
+      totalEl.textContent = "—";
+      eachEl.textContent = "—";
+      noteEl.textContent = "";
+    }
+
+    chips.forEach((chip) => {
+      chip.addEventListener("click", () => {
+        tipPercent = Number(chip.dataset.tip);
+        chips.forEach((other) => {
+          other.setAttribute("aria-pressed", other === chip ? "true" : "false");
+        });
+        render();
+      });
+    });
+
+    amountInput.addEventListener("input", render);
+    peopleInput.addEventListener("input", render);
+    themeButton.addEventListener("click", () => {
+      const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+      document.documentElement.dataset.theme = next;
+      themeButton.textContent = next === "dark" ? "Light mode" : "Dark mode";
+    });
+
+    render();
+  </script>
+</body>
+</html>
