@@ -1,8 +1,8 @@
-# Split the bill
+# Baant
 
-A free page for splitting a restaurant bill in rupees. Pick a tip, say how many people are paying, and the shares add up to the total.
+A free page for splitting a restaurant bill in rupees. Pick a tip, say how many people are paying, and the shares add up to the total. Baant means to divide or share.
 
-![Split the bill, with a ₹10.10 bill, a 10% tip, and three people](screenshot.png)
+![Baant, with a ₹10.10 bill, a 10% tip, and three people](screenshot.png)
 
 No account, no install, and no server. Open the file and it runs.
 
